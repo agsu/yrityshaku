@@ -6,8 +6,7 @@ ASENNUS
 
 Kaikki tiedostot PHP:ta tukevan palvelimen alle.
 
-Kansiolle ja db.sqlite3 tiedostolle tulee olla palvelinprosessilla luku, kirjoitus ja suoritus oikeudet,
-muuten tietokantaan kirjoitus ei toimi.
+Kansiolle ja db.sqlite3 tiedostolle tulee olla palvelinprosessilla luku, kirjoitus ja suoritus oikeudet, muuten tietokantaan kirjoitus ei toimi.
 
 TIETOKANNAN NOLLAUS
 
