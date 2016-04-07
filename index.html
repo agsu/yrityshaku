@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Yrityshaku</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+</head>
+<body style="padding-top: 2em;">
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <p class="lead">Esimerkkejä:</p>
+                    <ul>
+                        <li class="example">Nebula Oy, <span>2305424-7</span></li>
+                        <li class="example">Megaklinikka Oy, <span>2345414-4</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group">
+                <label for="search-box">Hae</label>
+                <input type="text" maxlength="9" class="form-control" id="search-box" placeholder="Y-tunnus">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12" id="results">
+
+        </div>
+    </div>
+</div>
+
+<script id="business-template" type="text/x-handlebars-template">
+    {{#if data}}
+    <h3>{{data.name}}<br/><small>{{business_id}}</small></h3>
+    <dl class="dl-horizontal">
+        <dt>Rekisteröity</dt>
+        <dd>{{data.registrationDate}}</dd>
+        <dt>Yhtiömuoto</dt>
+        <dd>{{data.companyForm}}</dd>
+        <dt>Yhtiömuoto</dt>
+        <dd>{{data.companyForm}}</dd>
+    </dl>
+    {{else}}
+    <p class="text-danger">{{#if error}}{{error}}{{else}}Ei tuloksia{{/if}}</p>
+    {{/if}}
+    <p>
+        Tiedot haettu: {{date fetched}}<br/>
+        <a href="#">Päivitä</a>
+    </p>
+</script>
+<script>
+    Handlebars.registerHelper('date', function(timeStr) {
+        return new Date(parseInt(timeStr + '000')).toLocaleString();
+    });
+
+    $(function () {
+        var searchUrl = 'service.php?businessId=';
+        var source = $("#business-template").html();
+        var template = Handlebars.compile(source);
+        var update = false;
+
+        var resultsContainer = $('#results');
+
+        $('#search-box').keyup(function () {
+            var value = $(this).val();
+            if (value.length === 9) {
+                $.getJSON(searchUrl + value + (update ? '&update=true' : ''), function (response) {
+                    resultsContainer.html(template(response)).show();
+                    update = false;
+                }).fail(function (response) {
+                    resultsContainer.html(template({
+                        data: null,
+                        fetched: Math.floor(Date.now() / 1000),
+                        error: response.responseText
+                    })).show();
+                })
+            }
+            else {
+                resultsContainer.hide();
+            }
+        });
+
+        $('.example').click(function () {
+            var id = $(this).find('span').text();
+            $('#search-box').val(id).keyup();
+        });
+
+        resultsContainer.on('click', 'a', function () { update = true; $('#search-box').keyup(); });
+    });
+</script>
+</body>
+</html>
